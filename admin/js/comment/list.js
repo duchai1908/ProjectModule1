@@ -65,6 +65,21 @@ function renderProducts(orders) {
     }
     tbodyHTML.innerHTML = stringHTML;
 } 
+function clickPage(i) {
+    currentPage = i;
+    render();
+}
+
+//B13 nhấn trái phải nút button
+function changePage(status) {
+    if (status === -1 && currentPage > 1) {
+        currentPage -= 1;
+    }
+    if (status === 1 && currentPage < totalPage) {
+        currentPage += 1;
+    }
+    render();
+}
 /*====================Detail Review ====================*/
 function detailReview(id){
     let comment = JSON.parse(localStorage.getItem(COMMENT));

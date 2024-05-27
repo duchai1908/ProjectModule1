@@ -96,6 +96,9 @@
     margin: 8px 7px;
 }
 
+
+
+
 .cart_total {
     display: flex;
     align-items: center;
@@ -129,7 +132,26 @@
 }
 
 
+/*-------------Pagination-------------------*/
+.page-item {
+    display: inline-block;
+    margin: 0 4px;
+    padding: 5px;
+    border-radius: 50%;
+    border: 1px solid #999;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+}
 
+.page-active {
+    background-color: blue;
+}
+
+.page-item:hover {
+    background-color: aqua;
+}
 
 /*------------------------MAIN NAV ---------------------*/
 
@@ -202,7 +224,11 @@
     grid-template-columns: 47% 50%;
 }
 .cart-submit{
+    margin-bottom: 10px;
     display: flex;
+}
+.cart-wishlish{
+    padding-left: 50px;
 }
 .numberCart{
     width: 40px;

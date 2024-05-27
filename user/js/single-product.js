@@ -32,7 +32,10 @@ function showDeltail(){
                     <div class="cart-submit">
                         <input type="number" size="4" class="numberCart" id="quantity" title="Qty" value="1" name="quantity" min="1" step="1">
                         <button class=" btn add_to_cart_button" type="button" onclick = "addtoCart(${product[findIndexSingle].id})">ADD TO CART</button>
-                    </div>                        
+                    </div>
+                    <div class="cart-submit cart-wishlish">
+                        <button class=" btn" type="button" onclick = "addtoWishlish(${product[findIndexSingle].id})">ADD TO WISHLISH</button>
+                    </div>                           
                 </form>
                 <div class="product-inner-category">
                     <p>Category: <a href="">Summer</a>. Tags: <a href="">awesome</a>, <a href="">best</a>, <a href="">sale</a>, <a href="">shoes</a>. </p>
@@ -331,6 +334,7 @@ reviewBox.addEventListener('submit',(e)=>{
         confirmButtonText: "OK"
     }).then((result) => {
         e.target.reset();
+        render();
     });
 });
 /*=========================LOG IN LOG OUT============================*/
@@ -350,6 +354,120 @@ checkUserLogout.addEventListener('click',(e)=>{
     localStorage.removeItem("user_login");
     window.location.reload();
 })
+/*====================Show Comment ========================*/
+let pageSize = 4;
+let totalPage = 1;
+let currentPage = 1;
+let pageList = document.getElementById("page-list");
+render();
+function render(){
+    let productId = JSON.parse(localStorage.getItem("single_product")) || {};
+    let comment = JSON.parse(localStorage.getItem("comment")) || [];
+    comment = comment.filter(item=>item.productId == productId.product_id);
+    renderPaginations(comment);
+    showComment(comment.reverse());
+}
+function renderPaginations(products) {
+
+    totalPage = Math.ceil(products.length / pageSize);  
+    let stringHTML = ""
+    for (let i = 1; i <= totalPage; i++) {
+        if (currentPage === i) {
+            stringHTML += `
+            <span class="page-item page-active" onclick="clickPage(${i})">${i}</span>
+            `
+        }
+        else {
+            stringHTML += `
+            <span class="page-item " onclick="clickPage(${i})">${i}</span>
+            `
+        }
+    }
+    pageList.innerHTML = stringHTML;
+}
+function showComment(comment){
+    let start = (currentPage - 1) * pageSize;
+    let end = start + pageSize
+    if (end > comment.length) {
+        end = comment.length
+    }
+    let reviewProducts = document.getElementById("reviewProducts");
+    let commentHead = `
+    <h3 class="comment_product">
+        Review Of Customer:
+    </h3>
+    `;
+    let stringHTML = ``;
+    for (let i = start; i < end; i++) {
+        let date = new Date(comment[i].dateTime);
+        stringHTML += `
+            <div class="comment_group">
+                <div class="comment_head">
+                    <span class="comment_user">${comment[i].name}</span> <span class="comment_time">${timeAgo(date)}</span>
+                </div>
+                <div class="commet_title">
+                    ${comment[i].comment}
+                </div>
+            </div>
+        `;
+    }
+    reviewProducts.innerHTML = commentHead + stringHTML;
+}
+/*==================Pagination Comment========================*/
+function clickPage(i) {
+    currentPage = i;
+    render();
+}
+
+function changePage(status) {
+    if (status === -1 && currentPage > 1) {
+        currentPage -= 1;
+    }
+    if (status === 1 && currentPage < totalPage) {
+        currentPage += 1;
+    }
+    render();
+}
+/*=====================Add to Wishlish========================*/
+function addtoWishlish(id){
+    let userLogin = JSON.parse(localStorage.getItem("user_login")) || {};
+    let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    let product = JSON.parse(localStorage.getItem("product")) ||[];
+    product = product.find(item=>item.id == id);
+    let idWishlist = (wishlist.length>0)? wishlist[wishlist.length-1].idWish +1 : 1;
+    let value = {...product,userId: userLogin.id, idWish: idWishlist};
+    if(Object.keys(userLogin).length >0){
+        if(wishlist.length>0){
+            let check = true;
+            for(let i in wishlist){
+                if(wishlist[i].id == id ){
+                    check = true;
+                    Swal.fire({
+                        title: "This product already exists in your wishlish!",
+                        text: "You can add another product",
+                        icon: "info"
+                      });
+                      break;
+                }else{
+                    check = false;
+                }
+            }
+            if(!check){
+                wishlist.push(value);
+                localStorage.setItem("wishlist",JSON.stringify(wishlist));
+            }
+        }else{
+            wishlist.push(value);
+            localStorage.setItem("wishlist",JSON.stringify(wishlist));
+        }   
+    }else{
+        Swal.fire({
+            title: "You are not logged in!",
+            text: "Login to add this product into your Wishlish",
+            icon: "info"
+          });
+    }
+}
 /*=================Time Ago=========================*/
 function timeAgo(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
